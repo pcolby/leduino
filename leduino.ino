@@ -34,6 +34,7 @@ struct Pattern {
 const Pattern patterns[] = {
     { { 0,   0, easeLinear }, {   0,   0, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { { 0, 100, easeLinear }, { 100, 100, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
+    { { 0, 100, easeLinear }, { 100, 100, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
 };
 
 void setup()
