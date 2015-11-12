@@ -19,17 +19,21 @@ typedef pin_value_t (*easing_function_t)(const millis_t elapsed, const millis_t 
 pin_value_t easeLinear(const millis_t, const millis_t, const pin_value_t, const pin_value_t);
 pin_value_t easeSin(const millis_t, const millis_t, const pin_value_t, const pin_value_t);
 
+struct Easing {
+    millis_t delay, duration;
+    easing_function_t function;
+};
+
 struct Pattern {
-    millis_t holdDuration, transitionDuration, overlapDuration;
-    easing_function_t easingFunction;
+    Easing in, out;
     pin_value_t minPinValue, maxPinValue;
     size_t statesCount;
     uint8_t states[10];
 };
 
 const Pattern patterns[] = {
-    { 100, 100, 50, easeLinear, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
-    { 100, 100, 50, easeSin,    MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
+    { { 0,   0, easeLinear }, {   0,   0, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
+    { { 0, 100, easeLinear }, { 100, 100, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
 };
 
 void setup()
@@ -81,29 +85,33 @@ void updateStatus(const pin_index_t pin, const size_t patternIndex, const int on
 void updateLights(const Pattern &pattern)
 {
     // Calculate the periodicity of the pattern.
-    const millis_t statePeriod = pattern.holdDuration + pattern.transitionDuration;
-    const millis_t cycleDuration = pattern.statesCount * statePeriod;
+    const millis_t perStateDuration = pattern.out.delay + max(pattern.out.duration, pattern.in.delay + pattern.in.duration);
+    const millis_t totalDuration = pattern.statesCount * perStateDuration;
 
     // Calculate which states we're in / transitioning between.
     const millis_t now = millis();
-    const millis_t timeIntoTransition = (now % cycleDuration) - pattern.holdDuration;
-    const size_t startState = (now % cycleDuration) / statePeriod;
-    const size_t endState = (startState + (timeIntoTransition > 0) ? 0 : 1) % pattern.statesCount;
+    const size_t startState = (now % totalDuration) / perStateDuration;
+    const size_t endState = (startState +
+        ((now % perStateDuration) > pattern.in.delay + pattern.out.delay) ? 1 : 0) % pattern.statesCount;
 
     // Update each of the affected output pins.
     const size_t outputPinCount = sizeof(outputPins)/sizeof(outputPins[0]);
     for (size_t index = 0; index < outputPinCount; ++index) {
+        const millis_t easeInElapsed = (now % perStateDuration) - pattern.in.delay;
+        const millis_t easeOutElapsed = (now % perStateDuration) - pattern.in.delay - pattern.out.delay;
+
         const bool isInStartState = bitRead(pattern.states[startState], index);
-        const bool isInEndState = bitRead(pattern.states[endState], index);
-        if (isInStartState == isInEndState) {
-            analogWrite(outputPins[index], (isInStartState) ? pattern.minPinValue : pattern.maxPinValue);
-        } else { // Were in a transition interval for this LED, so calculate the cross-faded level.
-            const pin_value_t startValue = isInStartState  ? pattern.maxPinValue : pattern.minPinValue;
-            const pin_value_t endValue   = isInEndState    ? pattern.maxPinValue : pattern.minPinValue;
-            const pin_value_t newValue = pattern.easingFunction(
-                timeIntoTransition, pattern.transitionDuration, startValue, endValue);
-            analogWrite(outputPins[index], newValue);
-        }
+        const bool isInEndState = (endState == startState) ? false : bitRead(pattern.states[endState], index);
+
+        const pin_value_t easeInValue = (isInStartState && (easeInElapsed > 0) && (easeInElapsed < pattern.in.duration))
+            ? pattern.in.function(easeInElapsed, pattern.in.duration, pattern.minPinValue, pattern.maxPinValue)
+            : pattern.minPinValue;
+
+        const pin_value_t easeOutValue = (isInEndState && (easeOutElapsed > 0) && (easeOutElapsed < pattern.out.duration))
+            ? pattern.out.function(easeOutElapsed, pattern.out.duration, pattern.minPinValue, pattern.maxPinValue)
+            : pattern.minPinValue;
+
+        analogWrite(outputPins[index], max(easeInValue, easeOutValue));
     }
 }
 
