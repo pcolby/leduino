@@ -1,6 +1,5 @@
-#define DEFAULT_PATTERN_INDEX 0
+#define DEFAULT_PATTERN_INDEX 0 // Pattern to use when first powered on.
 
-#define DEBOUNCE_PERIOD 200
 #define MIN_PIN_VALUE 0
 #define MAX_PIN_VALUE 0xFF
 
@@ -46,13 +45,13 @@ void setup()
     pinMode(statusPin, OUTPUT);
 }
 
-size_t getPatternIndex(const pin_index_t pin)
+size_t getPatternIndex(const pin_index_t pin, const millis_t debounceDuration = 100)
 {
     static size_t index = DEFAULT_PATTERN_INDEX;
     static millis_t lastPressedTimestamp = 0;
 
     const millis_t now = millis();
-    if (((now - lastPressedTimestamp) > DEBOUNCE_PERIOD) && (digitalRead(pin) == HIGH)) {
+    if (((now - lastPressedTimestamp) > debounceDuration) && (digitalRead(pin) == HIGH)) {
         const size_t patternsCount = sizeof(patterns)/sizeof(patterns[0]);
         index = (index+1) % patternsCount;
         lastPressedTimestamp = now;
