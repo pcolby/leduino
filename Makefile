@@ -1,10 +1,11 @@
 ARDUINO = ~/opt/arduino-1.6.6/arduino
+PROJECT = leduino
+SOURCE  = ${PROJECT}.ino
 
-default: leduino.foo
-
-%.foo: %.ino
+check:	${SOURCE}
 	$(ARDUINO) --verify $<
 
-.PHONY: install
-install: leduino.ino
+install: ${SOURCE}
 	$(ARDUINO) --upload $<
+
+.PHONY: check install
