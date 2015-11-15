@@ -1,4 +1,4 @@
-#define DEFAULT_PATTERN_INDEX 2 // Pattern to use when first powered on.
+#define DEFAULT_PATTERN_INDEX 3 // Pattern to use when first powered on.
 
 #define MIN_PIN_VALUE 0
 #define MAX_PIN_VALUE 0xFF
@@ -35,7 +35,8 @@ struct Pattern {
 const Pattern patterns[] = {
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
-    {  500, 1000, { 750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
+    {   50, 2000, { 1000, easeSin }, { 1000, easeSin }, 20, MAX_PIN_VALUE, 1, { 0xFF } },  // Gentle pulse all.
+    {  500, 1000, {  750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
 };
 
 void setup()
@@ -141,5 +142,5 @@ pin_value_t easeLinear(const millis_t elapsed, const millis_t duration, const pi
 
 pin_value_t easeSin(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
 {
-    return startValue + sin(M_PI_2 * elapsed / duration) * (endValue - startValue) + 0.5;
+    return startValue + sin(HALF_PI * elapsed / duration) * (endValue - startValue) + 0.5;
 }
