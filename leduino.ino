@@ -77,9 +77,11 @@ void updateStatus(const pin_index_t pin, const size_t patternIndex, const int on
         resetTimestamp = millis();
     }
 
-    const millis_t cycleDuration = ((patternIndex+1) * (onDuration + offDuration)) - offDuration + blankDuration;
+    const millis_t onOffDuration = onDuration + offDuration;
+    const millis_t cycleDuration = (patternIndex * onOffDuration) + blankDuration;
+    const millis_t elapsed = (millis() - resetTimestamp) % cycleDuration;
     static pin_value_t pinValue = LOW;
-    const pin_value_t newValue = ((resetTimestamp % cycleDuration) < onDuration) ? HIGH : LOW;
+    const pin_value_t newValue = (((elapsed / onOffDuration) < patternIndex) && ((elapsed % onOffDuration) < onDuration)) ? HIGH : LOW;
     if (pinValue != newValue) {
         digitalWrite(pin, pinValue = newValue);
     }
@@ -125,7 +127,7 @@ void updateLights(const Pattern &pattern)
 void loop()
 {
     const size_t patternIndex = getPatternIndex(buttonPin);
-    updateStatus(statusPin, patternIndex, 100, 100, 100);
+    updateStatus(statusPin, patternIndex, 150, 300, 750);
     updateLights(patterns[patternIndex]);
 }
 
