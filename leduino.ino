@@ -138,5 +138,5 @@ pin_value_t easeLinear(const millis_t elapsed, const millis_t duration, const pi
 
 pin_value_t easeSin(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
 {
-    return startValue + sin(HALF_PI * elapsed / duration) * (endValue - startValue) + 0.5;
+    return round(startValue + sin(HALF_PI * elapsed / duration) * (endValue - startValue));
 }
