@@ -35,7 +35,7 @@ struct Pattern {
 const Pattern patterns[] = {
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
-    { 1000, 1000, { 500, easeLinear }, { 500, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
+    {  500, 1000, { 750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
 };
 
 void setup()
@@ -106,15 +106,15 @@ void updateLights(const Pattern &pattern)
         if (elapsed < pattern.onDuration) {
             analogWrite(outputPins[index], isInStartState ? pattern.maxPinValue : pattern.minPinValue);
         } else if (elapsed < pattern.onDuration + pattern.transitionDuration) {
-            const pin_value_t easeOutValue = ((isInStartState) && (elapsed < pattern.onDuration + pattern.out.duration))
-                ? pattern.out.function(pattern.out.duration - elapsed + pattern.onDuration, pattern.out.duration, pattern.minPinValue, pattern.maxPinValue)
-                : pattern.minPinValue;
-
             const pin_value_t easeInValue = ((isInEndState) && (elapsed > pattern.onDuration + pattern.transitionDuration - pattern.in.duration))
                 ? pattern.out.function(elapsed - pattern.onDuration - pattern.transitionDuration + pattern.in.duration, pattern.in.duration, pattern.minPinValue, pattern.maxPinValue)
                 : pattern.minPinValue;
 
-            analogWrite(outputPins[index], max(easeOutValue, easeInValue));
+            const pin_value_t easeOutValue = ((isInStartState) && (elapsed < pattern.onDuration + pattern.out.duration))
+                ? pattern.out.function(pattern.out.duration - elapsed + pattern.onDuration, pattern.out.duration, pattern.minPinValue, pattern.maxPinValue)
+                : pattern.minPinValue;
+
+            analogWrite(outputPins[index], max(easeInValue, easeOutValue));
         } else {
             analogWrite(outputPins[index], isInEndState ? pattern.maxPinValue : pattern.minPinValue);
         }
