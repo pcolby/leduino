@@ -17,7 +17,7 @@ const pin_index_t statusPin = 13; // Arduino Uno's built-in LED pin.
 typedef pin_value_t (*easing_function_t)(const millis_t elapsed, const millis_t duration,
                                          const pin_value_t startValue, const pin_value_t endValue);
 pin_value_t easeLinear(const millis_t, const millis_t, const pin_value_t, const pin_value_t);
-pin_value_t easeSin(const millis_t, const millis_t, const pin_value_t, const pin_value_t);
+pin_value_t easeSine(const millis_t, const millis_t, const pin_value_t, const pin_value_t);
 
 struct Easing {
     millis_t duration;
@@ -35,7 +35,7 @@ struct Pattern {
 const Pattern patterns[] = {
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
-    {   50, 2000, { 1000, easeSin }, { 1000, easeSin }, 20, MAX_PIN_VALUE, 1, { 0xFF } },  // Gentle pulse all.
+    {   50, 2000, { 1000, easeSine }, { 1000, easeSine }, 20, MAX_PIN_VALUE, 1, { 0xFF } },  // Gentle pulse all.
     {  500, 1000, {  750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
 };
 
@@ -136,7 +136,7 @@ pin_value_t easeLinear(const millis_t elapsed, const millis_t duration, const pi
     return startValue + (endValue - startValue) * elapsed / duration;
 }
 
-pin_value_t easeSin(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
+pin_value_t easeSine(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
 {
     return round(startValue + sin(HALF_PI * elapsed / duration) * (endValue - startValue));
 }
