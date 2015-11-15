@@ -1,5 +1,9 @@
-#define DEFAULT_PATTERN_INDEX 3 // Pattern to use when first powered on.
+#define BLUE_A      bit(1)
+#define BLUE_B      bit(2)
+#define BLUE_ORANGE bit(3)
+#define GREEN_RED   bit(4)
 
+#define DEFAULT_PATTERN_INDEX 3 // Pattern to use when first powered on.
 #define MIN_PIN_VALUE 0
 #define MAX_PIN_VALUE 0xFF
 
@@ -36,7 +40,7 @@ const Pattern patterns[] = {
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
     {   50, 2000, { 1000, easeSine }, { 1000, easeSine }, 20, MAX_PIN_VALUE, 1, { 0xFF } },  // Gentle pulse all.
-    {  500, 1000, {  750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { bit(1), bit(2), bit(3) } }, // Cross-fade.
+    {  500, 1000, {  750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 4, { BLUE_A, BLUE_B, BLUE_ORANGE, GREEN_RED } }, // Cross-fade.
 };
 
 void setup()
