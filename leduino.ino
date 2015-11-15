@@ -134,12 +134,6 @@ pin_value_t easeLinear(const millis_t elapsed, const millis_t duration, const pi
     return startValue + (endValue - startValue) * elapsed / duration;
 }
 
-/*pin_value_t easeLog(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
-{
-    return 0; // pow or sqrt?
-    //return startValue + (endValue - startValue) * elapsed / duration;
-}*/
-
 pin_value_t easeSin(const millis_t elapsed, const millis_t duration, const pin_value_t startValue, const pin_value_t endValue)
 {
     return startValue + sin(HALF_PI * elapsed / duration) * (endValue - startValue) + 0.5;
