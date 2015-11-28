@@ -1,7 +1,13 @@
-#define BLUE_A      bit(1)
-#define BLUE_B      bit(2)
-#define BLUE_ORANGE bit(3)
-#define GREEN_RED   bit(4)
+#define BLUE_A        bit(1)
+#define BLUE_B        bit(2)
+#define BLUE_ORANGE_A bit(3)
+#define BLUE_ORANGE_B bit(4)
+#define GREEN_RED_A   bit(5)
+#define GREEN_RED_B   bit(6)
+
+#define BLUE        (BLUE_A + BLUE_B)
+#define BLUE_ORANGE (BLUE_ORANGE_A + BLUE_ORANGE_B)
+#define GREEN_RED   (GREEN_RED_A + GREEN_RED_B)
 
 #define DEFAULT_PATTERN_INDEX 3 // Pattern to use when first powered on.
 #define MIN_PIN_VALUE 0
@@ -40,7 +46,7 @@ const Pattern patterns[] = {
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 0, {} },        // All off.
     { 1000,   0, { 0, NULL }, {  0, NULL }, MIN_PIN_VALUE, MAX_PIN_VALUE, 1, { 0xFF } },  // All on.
     {   50, 2000, { 1000, easeSine }, { 1000, easeSine }, 20, MAX_PIN_VALUE, 1, { 0xFF } },  // Gentle pulse all.
-    {  500, 1000, {  750, easeLinear }, { 750, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 4, { BLUE_A, BLUE_B, BLUE_ORANGE, GREEN_RED } }, // Cross-fade.
+    { 3000, 5000, { 4000, easeLinear }, { 4000, easeLinear }, MIN_PIN_VALUE, MAX_PIN_VALUE, 3, { BLUE, BLUE_ORANGE, GREEN_RED } }, // Cross-fade.
 };
 
 void setup()
@@ -107,8 +113,8 @@ void updateLights(const Pattern &pattern)
     // Update each of the affected output pins.
     const size_t outputPinCount = sizeof(outputPins)/sizeof(outputPins[0]);
     for (size_t index = 0; index < outputPinCount; ++index) {
-        const bool isInStartState = bitRead(pattern.states[startState], index);
-        const bool isInEndState = bitRead(pattern.states[endState], index);
+        const bool isInStartState = bitRead(pattern.states[startState], index+1);
+        const bool isInEndState = bitRead(pattern.states[endState], index+1);
 
         if (elapsed < pattern.onDuration) {
             analogWrite(outputPins[index], isInStartState ? pattern.maxPinValue : pattern.minPinValue);
